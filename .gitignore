@@ -1,0 +1,16 @@
+
+/.venv
+/.venv/*
+
+__pycache__/
+*/migrations/*
+
+.env
+aws/
+volume/
+.idea/
+alembic/versions/
+logs/
+.coverage
+requirements.txt
+.github/
