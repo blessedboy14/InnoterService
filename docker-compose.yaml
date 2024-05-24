@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  mysql_db:
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DB_NAME}
+      - MYSQL_USER=${NAME}
+      - MYSQL_PASSWORD=${PASS}
+      - MYSQL_ROOT_PASSWORD=${PASS}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '3306:3306'
+    volumes:
+      - /mysql_volume:/var/lib/mysql
