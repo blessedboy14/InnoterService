@@ -14,3 +14,22 @@ services:
       - '3306:3306'
     volumes:
       - /mysql_volume:/var/lib/mysql
+
+  innoter_service:
+    build: .
+    restart: always
+    container_name: "innoter_service"
+    ports:
+      - "8000:8000"
+    environment:
+      - PASS=${PASS}
+      - NAME=${NAME}
+      - BUCKET_NAME=${BUCKET_NAME}
+      - MYSQL_HOST=mysql_db
+      - MYSQL_DB_NAME=${MYSQL_DB_NAME}
+      - RABBITMQ_HOST=localhost
+      - RABBITMQ_QUEUE=reset-password-stream
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM =${HS256}
+      - ACCESS_EXP=${ACCESS_EXP}
+      - REFRESH_EXP=${REFRESH_EXP}

@@ -10,11 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import logging
 import os
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
-
 
 load_dotenv()
 
@@ -97,7 +97,7 @@ LOGGING = {
     },
 }
 
-# SELERY CONFIG
+# CELERY CONFIG
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BROKER_URL = "amqp://blessedboy:ewkere123@127.0.0.1:5672"
 CELERY_ACCEPT_CONTENT = ["application/json"]
@@ -113,7 +113,6 @@ CELERY_BEAT_SCHEDULE = {
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     "default": {
@@ -121,16 +120,12 @@ DATABASES = {
         "NAME": os.getenv("MYSQL_DB_NAME"),
         "USER": os.getenv("NAME"),
         "PASSWORD": os.getenv("PASS"),
-        "HOST": "127.0.0.1",  # Or an IP Address that your DB is hosted on
+        "HOST": os.getenv("MYSQL_HOST"),
         "PORT": "3306",
         "TEST": {
             "USER": "root",
         },
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
 }
 
 
@@ -154,7 +149,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
@@ -166,11 +160,20 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# logger config
+# logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)

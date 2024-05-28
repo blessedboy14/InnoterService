@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from .api_calls import (
+from blog.api_calls import (
     UserRole,
     fetch_user_data,
     RequestedDataType,
     fetch_user_data_as_moderator,
-    role_values,
 )
 
 

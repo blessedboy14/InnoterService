@@ -1,11 +1,14 @@
-from django.utils import timezone
 from django.core.paginator import Paginator
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-
+from InnoterService import settings
 from blog.authentication import CustomJWTAuthentication
 from blog.models import Post, Page, Tag, Followers
-from blog.permissions import IsAdminModerCreatorOrReadOnly, IsCreator
+from blog.permissions import (
+    IsAdminModerCreatorOrReadOnly,
+    IsCreator,
+    IsAdminOrGroupModerator,
+)
 from blog.serializers import (
     PostSerializer,
     PageSerializer,
@@ -16,6 +19,8 @@ from blog.serializers import (
     FollowerSerializer,
     FollowerResponseSerializer,
 )
+
+logger = settings.logger
 
 
 class PageViewSet(viewsets.ModelViewSet):
@@ -30,12 +35,17 @@ class PageViewSet(viewsets.ModelViewSet):
             self.permission_classes = [permissions.IsAuthenticated]
         elif self.action == "partial_update":
             self.permission_classes = [IsCreator]
+        elif self.action == "block":
+            self.permission_classes = [IsAdminOrGroupModerator]
         else:
             self.permission_classes = [IsAdminModerCreatorOrReadOnly]
         return [permission() for permission in self.permission_classes]
 
     def retrieve(self, request, *args, **kwargs):
         page = self.get_object()
+        logger.info(
+            f"request to retrieve page object with query params: {request.query_params}"
+        )
         if not page.is_blocked:
             page_number = request.query_params.get("page", 1)
             limit = request.query_params.get("limit", 30)
@@ -48,6 +58,7 @@ class PageViewSet(viewsets.ModelViewSet):
             serializer.posts = items
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
+            logger.error(f"request to retrieve blocked page with pk={page.id}")
             return Response(
                 data={"message": "Oops, page is blocked!"},
                 status=status.HTTP_404_NOT_FOUND,
@@ -55,6 +66,7 @@ class PageViewSet(viewsets.ModelViewSet):
 
     def retrieve_followers(self, request, *args, **kwargs):
         page = self.get_object()
+        logger.info(f"request to retrieve followers of page with pk={page.id}")
         followers = Followers.objects.filter(page_id=page.id)
         serializer = FollowerResponseSerializer(followers, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -62,6 +74,7 @@ class PageViewSet(viewsets.ModelViewSet):
     @staticmethod
     def follow(request, *args, **kwargs):
         if not Followers.objects.filter(page_id=kwargs["pk"]).exists():
+            logger.info(f'request to follow to page with pk={kwargs["pk"]}')
             user_id = request.user.user_id
             response_data = {}
             data = {"page_id": kwargs["pk"]}
@@ -72,17 +85,22 @@ class PageViewSet(viewsets.ModelViewSet):
             follower.save()
             response_data.update({"message": "successfully followed"})
             return Response(data=response_data, status=status.HTTP_200_OK)
+        logger.info(
+            f'request to follow to page that is already followed by user, page pk={kwargs["pk"]}'
+        )
         response_data = {"message": "already followed"}
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     @staticmethod
     def unfollow(request, *args, **kwargs):
+        logger.info(f'request to unfollow from page with pk={kwargs["pk"]}')
         if Followers.objects.filter(page_id=kwargs["pk"]).exists():
             Followers.objects.filter(page_id=kwargs["pk"]).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
     def feed(request, *args, **kwargs):
+        logger.info(f"request to get feed for user id = {request.user.user_id}")
         followed = Followers.objects.filter(user_id=request.user.user_id).values_list(
             "page_id", flat=True
         )
@@ -93,7 +111,7 @@ class PageViewSet(viewsets.ModelViewSet):
     def block(self, request, *args, **kwargs):
         page = self.get_object()
         unblock_date = request.data.get("unblock_date", None)
-
+        logger.info(f"request to block page with pk={page.id}")
         if not page.is_blocked and unblock_date:
             page.is_blocked = True
             page.unblock_date = unblock_date
