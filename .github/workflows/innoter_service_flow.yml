@@ -52,7 +52,7 @@ jobs:
       - name: Check containers
         run: |
           sleep 10s
-          docker ps
+          docker ps -a
           docker exec innoterservice_mysql_db_1 env
       - name: Test with pytest and show coverage
         run: |
