@@ -99,7 +99,8 @@ LOGGING = {
 
 # CELERY CONFIG
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-CELERY_BROKER_URL = "amqp://blessedboy:ewkere123@127.0.0.1:5672"
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
+CELERY_BROKER_URL = f"amqp://blessedboy:ewkere123@{RABBITMQ_HOST}:5672"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_SERIALIZER = "json"

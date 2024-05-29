@@ -16,6 +16,8 @@ services:
   innoter_service:
     build: .
     container_name: "innoter_service"
+    networks:
+      - usersmanagementservice_default
     ports:
       - "8000:8000"
     environment:
@@ -24,9 +26,12 @@ services:
       - BUCKET_NAME=${BUCKET_NAME}
       - MYSQL_HOST=mysql_db
       - MYSQL_DB_NAME=${MYSQL_DB_NAME}
-      - RABBITMQ_HOST=localhost
-      - RABBITMQ_QUEUE=reset-password-stream
+      - RABBITMQ_HOST=rabbitmq_manage
       - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=${HS256}
       - ACCESS_EXP=${ACCESS_EXP}
       - REFRESH_EXP=${REFRESH_EXP}
+
+networks:
+  usersmanagementservice_default:
+    external: true
