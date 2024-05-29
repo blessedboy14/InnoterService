@@ -53,6 +53,7 @@ jobs:
         run: |
           sleep 10s
           docker ps
+          docker exec innoterservice_mysql_db_1 env
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
