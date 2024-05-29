@@ -30,6 +30,6 @@ services:
       - RABBITMQ_HOST=localhost
       - RABBITMQ_QUEUE=reset-password-stream
       - SECRET_KEY=${SECRET_KEY}
-      - ALGORITHM =${HS256}
+      - ALGORITHM=${HS256}
       - ACCESS_EXP=${ACCESS_EXP}
       - REFRESH_EXP=${REFRESH_EXP}
