@@ -123,7 +123,7 @@ DATABASES = {
         "HOST": os.getenv("MYSQL_HOST"),
         "PORT": "3306",
         "TEST": {
-            "USER": "root",
+            "USER": os.getenv("NAME"),
         },
     }
 }
