@@ -125,7 +125,7 @@ DATABASES = {
         "TEST": {
             "USER": 'root',
         },
-    }
+    },
 }
 
 
