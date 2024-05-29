@@ -5,8 +5,9 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from tests.utils.faker import fake_page, fake_tag, fake_post
 
-
 result = find_dotenv("tests/.test.env")
+
+
 load_dotenv(result)
 
 
