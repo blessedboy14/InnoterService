@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build docker compose
         run: |
-          docker-compose --env-file .env.test up -d
+          docker-compose --env-file .env.test -f docker-compose.test.yaml up -d
       
  lint:
     runs-on: ubuntu-latest
@@ -50,13 +50,10 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
-          docker-compose --env-file .env.test up -d
-      - name: Check containers
+          docker-compose --env-file .env.test -f docker-compose.test.yaml up -d
+      - name: Wait until mysql is up
         run: |
-          sleep 4s
-          docker ps -a
-          sleep 5s 
-          docker exec innoter_service env
+          sleep 10s
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
