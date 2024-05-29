@@ -49,6 +49,9 @@ jobs:
       - name: Run containers
         run: |
           docker-compose --env-file .env.test up -d
+      - name: Check containers
+        run: |
+          docker ps -a
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
