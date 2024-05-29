@@ -51,9 +51,9 @@ jobs:
           docker-compose --env-file .env.test up -d
       - name: Check containers
         run: |
-          sleep 10s
-          docker ps
-          docker exec innoterservice_mysql_db_1 env
+          sleep 4s
+          docker ps -a
+          docker logs innoterservice_mysql_db_1
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
