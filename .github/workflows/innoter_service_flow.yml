@@ -51,9 +51,9 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           docker-compose --env-file .env.test -f docker-compose.test.yaml up -d
-      - name: Check containers
+      - name: Wait until mysql is up
         run: |
-          sleep 7s
+          sleep 10s
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
