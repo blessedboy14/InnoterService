@@ -3,6 +3,8 @@ version: '3.8'
 services:
   mysql_db:
     image: mysql:latest
+    networks:
+      - usersmanagementservice_default
     environment:
       - MYSQL_DATABASE=${MYSQL_DB_NAME}
       - MYSQL_PASSWORD=${PASS}
@@ -16,6 +18,8 @@ services:
   innoter_service:
     build: .
     container_name: "innoter_service"
+    depends_on:
+      - mysql_db
     networks:
       - usersmanagementservice_default
     ports:

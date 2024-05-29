@@ -16,6 +16,8 @@ services:
   innoter_service:
     build: .
     container_name: "innoter_service"
+    depends_on:
+      - mysql_db
     ports:
       - "8000:8000"
     environment:
