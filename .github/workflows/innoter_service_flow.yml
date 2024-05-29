@@ -47,6 +47,8 @@ jobs:
         with:
           python-version: "3.10"
       - name: Run containers
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           docker-compose --env-file .env.test up -d
       - name: Check containers
@@ -54,7 +56,7 @@ jobs:
           sleep 4s
           docker ps -a
           sleep 5s 
-          docker ps
+          docker exec innoter_service env
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
