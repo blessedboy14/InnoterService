@@ -53,8 +53,10 @@ jobs:
           docker-compose --env-file .env.test -f docker-compose.test.yaml up -d
       - name: Check containers
         run: |
-          sleep 3s
-          docker ps
+          sleep 4s
+          docker ps -a
+          sleep 5s 
+          docker exec innoter_service env
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
