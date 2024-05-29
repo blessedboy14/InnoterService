@@ -54,7 +54,7 @@ jobs:
           sleep 4s
           docker ps -a
           sleep 5s 
-          docker ps
+          docker exec innoter_service env
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
