@@ -51,6 +51,10 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           docker-compose --env-file .env.test -f docker-compose.test.yaml up -d
+      - name: Check containers
+        run: |
+          sleep 3s
+          docker ps
       - name: Test with pytest and show coverage
         run: |
           docker exec innoter_service pytest
