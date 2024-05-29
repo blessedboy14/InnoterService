@@ -47,6 +47,8 @@ jobs:
         with:
           python-version: "3.10"
       - name: Run containers
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           docker-compose --env-file .env.test up -d
       - name: Check containers
