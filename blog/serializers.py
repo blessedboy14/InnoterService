@@ -6,19 +6,19 @@ from blog.models import Post, Tag, Page, Followers
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = "__all__"
+        fields = '__all__'
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = "__all__"
+        fields = '__all__'
 
 
 class PageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Page
-        fields = "__all__"
+        fields = '__all__'
 
 
 class PageDetailSerializer(PageSerializer):
@@ -38,7 +38,7 @@ class PaginationAndFiltersSerializer(PaginationParamsSerializer):
 class FollowerResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Followers
-        fields = ["user_id"]
+        fields = ['user_id']
 
 
 class FollowerSerializer(serializers.ModelSerializer):
@@ -46,4 +46,4 @@ class FollowerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Followers
-        fields = "__all__"
+        fields = '__all__'

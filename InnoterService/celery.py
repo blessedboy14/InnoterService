@@ -3,9 +3,9 @@ import os
 
 from InnoterService import settings
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "InnoterService.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'InnoterService.settings')
 
-app = Celery("InnoterService")
+app = Celery('InnoterService')
 app.conf.enable_utc = True
-app.config_from_object("django.conf:settings", namespace="CELERY")
+app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

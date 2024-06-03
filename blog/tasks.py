@@ -10,4 +10,4 @@ def unblock_pages_today():
     pages = Page.objects.filter(unblock_date__lte=date.today())
     for page in pages:
         page.unblock()
-    return f"{len(pages)} pages unblocked."
+    return f'{len(pages)} pages unblocked.'

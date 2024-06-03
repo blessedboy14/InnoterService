@@ -7,7 +7,7 @@ import pytest
 
 def test_correct_credentials(get_token):
     django_request = HttpRequest()
-    django_request.META.setdefault("HTTP_AUTHORIZATION", "Bearer " + get_token)
+    django_request.META.setdefault('HTTP_AUTHORIZATION', 'Bearer ' + get_token)
     request = Request(request=django_request)
     try:
         CustomJWTAuthentication().authenticate(request)
@@ -31,7 +31,7 @@ def test_no_token_provided(get_token):
 def test_bad_token_provided(get_token):
     django_request = HttpRequest()
     django_request.META.setdefault(
-        "HTTP_AUTHORIZATION", "Bearer " + "ewkere<not_a_token>"
+        'HTTP_AUTHORIZATION', 'Bearer ' + 'ewkere<not_a_token>'
     )
     request = Request(request=django_request)
     try:

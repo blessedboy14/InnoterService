@@ -13,7 +13,7 @@ class Tag(models.Model):
     name = models.CharField(max_length=120, unique=True)
 
     class Meta:
-        ordering = ["-name"]
+        ordering = ['-name']
 
     def __repr__(self):
         return self.name
@@ -51,14 +51,14 @@ class Post(models.Model):
     id = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, primary_key=True
     )
-    page = models.ForeignKey(Page, related_name="posts", on_delete=models.CASCADE)
+    page = models.ForeignKey(Page, related_name='posts', on_delete=models.CASCADE)
     content = models.TextField()
     reply_to = models.UUIDField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ['-created_at']
 
 
 class Likes(models.Model):

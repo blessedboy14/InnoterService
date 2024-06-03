@@ -24,18 +24,18 @@ logger = settings.logger
 
 
 class PageViewSet(viewsets.ModelViewSet):
-    queryset = Page.objects.all().order_by("-created_at")
+    queryset = Page.objects.all().order_by('-created_at')
     serializer_class = PageSerializer
     permission_classes = [IsAdminModerCreatorOrReadOnly]
     authentication_classes = [CustomJWTAuthentication]
-    save_actions = ("create_page", "retrieve", "follow", "unfollow")
+    save_actions = ('create_page', 'retrieve', 'follow', 'unfollow')
 
     def get_permissions(self):
         if self.action in self.save_actions:
             self.permission_classes = [permissions.IsAuthenticated]
-        elif self.action == "partial_update":
+        elif self.action == 'partial_update':
             self.permission_classes = [IsCreator]
-        elif self.action == "block":
+        elif self.action == 'block':
             self.permission_classes = [IsAdminOrGroupModerator]
         else:
             self.permission_classes = [IsAdminModerCreatorOrReadOnly]
@@ -44,11 +44,11 @@ class PageViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         page = self.get_object()
         logger.info(
-            f"request to retrieve page object with query params: {request.query_params}"
+            f'request to retrieve page object with query params: {request.query_params}'
         )
         if not page.is_blocked:
-            page_number = request.query_params.get("page", 1)
-            limit = request.query_params.get("limit", 30)
+            page_number = request.query_params.get('page', 1)
+            limit = request.query_params.get('limit', 30)
             params_serializer = PaginationParamsSerializer(data=request.query_params)
             params_serializer.is_valid(raise_exception=True)
             posts = page.posts.all()
@@ -58,60 +58,60 @@ class PageViewSet(viewsets.ModelViewSet):
             serializer.posts = items
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
-            logger.error(f"request to retrieve blocked page with pk={page.id}")
+            logger.error(f'request to retrieve blocked page with pk={page.id}')
             return Response(
-                data={"message": "Oops, page is blocked!"},
+                data={'message': 'Oops, page is blocked!'},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
     def retrieve_followers(self, request, *args, **kwargs):
         page = self.get_object()
-        logger.info(f"request to retrieve followers of page with pk={page.id}")
+        logger.info(f'request to retrieve followers of page with pk={page.id}')
         followers = Followers.objects.filter(page_id=page.id)
         serializer = FollowerResponseSerializer(followers, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @staticmethod
     def follow(request, *args, **kwargs):
-        if not Followers.objects.filter(page=kwargs["pk"]).exists():
+        if not Followers.objects.filter(page=kwargs['pk']).exists():
             logger.info(f'request to follow to page with pk={kwargs["pk"]}')
             user_id = request.user.user_id
             response_data = {}
-            data = {"page": kwargs["pk"]}
+            data = {'page': kwargs['pk']}
             serializer = FollowerSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             follower = Followers(**serializer.validated_data)
             follower.user_id = user_id
             follower.save()
-            response_data.update({"message": "successfully followed"})
+            response_data.update({'message': 'successfully followed'})
             return Response(data=response_data, status=status.HTTP_200_OK)
         logger.info(
             f'request to follow to page that is already followed by user, page pk={kwargs["pk"]}'
         )
-        response_data = {"message": "already followed"}
+        response_data = {'message': 'already followed'}
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     @staticmethod
     def unfollow(request, *args, **kwargs):
         logger.info(f'request to unfollow from page with pk={kwargs["pk"]}')
-        if Followers.objects.filter(page_id=kwargs["pk"]).exists():
-            Followers.objects.filter(page_id=kwargs["pk"]).delete()
+        if Followers.objects.filter(page_id=kwargs['pk']).exists():
+            Followers.objects.filter(page_id=kwargs['pk']).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
     def feed(request, *args, **kwargs):
-        logger.info(f"request to get feed for user id = {request.user.user_id}")
+        logger.info(f'request to get feed for user id = {request.user.user_id}')
         followed = Followers.objects.filter(user_id=request.user.user_id).values_list(
-            "page_id", flat=True
+            'page_id', flat=True
         )
-        posts = Post.objects.filter(page__id__in=followed).order_by("-created_at")
+        posts = Post.objects.filter(page__id__in=followed).order_by('-created_at')
         serializer = PostSerializer(posts, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def block(self, request, *args, **kwargs):
         page = self.get_object()
-        unblock_date = request.data.get("unblock_date", None)
-        logger.info(f"request to block page with pk={page.id}")
+        unblock_date = request.data.get('unblock_date', None)
+        logger.info(f'request to block page with pk={page.id}')
         if not page.is_blocked and unblock_date:
             page.is_blocked = True
             page.unblock_date = unblock_date
@@ -119,22 +119,22 @@ class PageViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data={"message": "incorrect unblock_date passed"},
+                data={'message': 'incorrect unblock_date passed'},
             )
         serializer = PageDetailSerializer(page)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class TagViewSet(viewsets.ModelViewSet):
-    queryset = Tag.objects.all().order_by("name")
+    queryset = Tag.objects.all().order_by('name')
     serializer_class = TagSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
     def list(self, request, *args, **kwargs):
-        page = request.query_params.get("page", 1)
-        limit = request.query_params.get("limit", 30)
-        filter_by_name = request.query_params.get("filter_by_name", "")
+        page = request.query_params.get('page', 1)
+        limit = request.query_params.get('limit', 30)
+        filter_by_name = request.query_params.get('filter_by_name', '')
         params_serializer = PaginationAndFiltersSerializer(data=request.query_params)
         params_serializer.is_valid(raise_exception=True)
         query_set = Tag.objects.filter(name__icontains=filter_by_name)
@@ -145,13 +145,13 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by("-created_at")
+    queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
     def get_permissions(self):
-        if self.action == "create_post" or self.action == "like":
+        if self.action == 'create_post' or self.action == 'like':
             self.permission_classes = [permissions.IsAuthenticated]
         else:
             self.permission_classes = [IsAdminModerCreatorOrReadOnly]
@@ -163,7 +163,9 @@ class PostViewSet(viewsets.ModelViewSet):
         if not Likes.objects.filter(user_id=user_id).exists():
             like = Likes(user_id=user_id, post=post)
             like.save()
-            return Response(status=status.HTTP_201_CREATED, data={"message": "successfully liked"})
+            return Response(
+                status=status.HTTP_201_CREATED, data={'message': 'successfully liked'}
+            )
         else:
             like = Likes.objects.get(user_id=user_id, post=post)
             like.delete()
