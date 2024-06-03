@@ -43,7 +43,7 @@ class Page(models.Model):
 
 
 class Followers(models.Model):
-    page_id = models.ForeignKey(Page, on_delete=models.CASCADE)
+    page = models.ForeignKey(Page, on_delete=models.CASCADE)
     user_id = models.UUIDField()
 
 
@@ -62,5 +62,5 @@ class Post(models.Model):
 
 
 class Likes(models.Model):
-    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user_id = models.UUIDField()

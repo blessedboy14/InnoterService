@@ -49,6 +49,11 @@ urlpatterns = [
         views.PostViewSet.as_view({"delete": "destroy", "patch": "partial_update"}),
         name="post_delete_and_patch",
     ),
+    path(
+        "post/<slug:pk>/like",
+        views.PostViewSet.as_view({"post": "like"}),
+        name="like_post",
+    ),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
 

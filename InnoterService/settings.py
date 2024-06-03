@@ -124,7 +124,7 @@ DATABASES = {
         "HOST": os.getenv("MYSQL_HOST"),
         "PORT": "3306",
         "TEST": {
-            "USER": 'root',
+            "USER": "root",
         },
     },
 }
@@ -169,7 +169,6 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # logger config
-# logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 

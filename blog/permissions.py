@@ -13,7 +13,7 @@ class IsAdminModerCreatorOrReadOnly(permissions.BasePermission):
         )
         if request.method in permissions.SAFE_METHODS:
             return True
-        if request.user.get_role() or obj.user_id.hex == request.user.user_id:
+        if request.user.get_role() or request.user.user_id:
             if not hasattr(obj, "user_id"):
                 obj = Page.objects.get(pk=obj.page_id)
             bool_val = (

@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from InnoterService import settings
 from blog.authentication import CustomJWTAuthentication
-from blog.models import Post, Page, Tag, Followers
+from blog.models import Post, Page, Tag, Followers, Likes
 from blog.permissions import (
     IsAdminModerCreatorOrReadOnly,
     IsCreator,
@@ -73,11 +73,11 @@ class PageViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def follow(request, *args, **kwargs):
-        if not Followers.objects.filter(page_id=kwargs["pk"]).exists():
+        if not Followers.objects.filter(page=kwargs["pk"]).exists():
             logger.info(f'request to follow to page with pk={kwargs["pk"]}')
             user_id = request.user.user_id
             response_data = {}
-            data = {"page_id": kwargs["pk"]}
+            data = {"page": kwargs["pk"]}
             serializer = FollowerSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             follower = Followers(**serializer.validated_data)
@@ -151,8 +151,20 @@ class PostViewSet(viewsets.ModelViewSet):
     authentication_classes = [CustomJWTAuthentication]
 
     def get_permissions(self):
-        if self.action == "create_post":
+        if self.action == "create_post" or self.action == "like":
             self.permission_classes = [permissions.IsAuthenticated]
         else:
             self.permission_classes = [IsAdminModerCreatorOrReadOnly]
         return [permission() for permission in self.permission_classes]
+
+    def like(self, request, *args, **kwargs):
+        post = self.get_object()
+        user_id = request.user.user_id
+        if not Likes.objects.filter(user_id=user_id).exists():
+            like = Likes(user_id=user_id, post=post)
+            like.save()
+            return Response(status=status.HTTP_201_CREATED, data={"message": "successfully liked"})
+        else:
+            like = Likes.objects.get(user_id=user_id, post=post)
+            like.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

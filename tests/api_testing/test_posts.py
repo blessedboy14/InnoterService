@@ -59,3 +59,19 @@ def test_patch_post(api_client, get_auth_headers, create_fake_post, monkeypatch)
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["content"] == to_update["content"]
+
+
+@pytest.mark.django_db
+def test_like_post(api_client, get_auth_headers, create_fake_post):
+    post_id = create_fake_post
+    response = api_client.post(f'/post/{post_id}/like', headers=get_auth_headers)
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db
+def test_like_then_unlike_post(api_client, get_auth_headers, create_fake_post):
+    post_id = create_fake_post
+    response = api_client.post(f'/post/{post_id}/like', headers=get_auth_headers)
+    assert response.status_code == status.HTTP_201_CREATED
+    response = api_client.post(f'/post/{post_id}/like', headers=get_auth_headers)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
