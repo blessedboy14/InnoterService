@@ -23,7 +23,7 @@ def fetch_user_data(token: str, requested_type: RequestedDataType) -> dict | Non
     headers = {'Authorization': f'Bearer {token}'}
     try:
         logger.info(f'Performing API call to Users Service for {requested_type.value}')
-        response = requests.get('http://localhost:8080/users/me', headers=headers)
+        response = requests.get(f'http://{settings.USERS_API_HOST}:{settings.USERS_API_PORT}/users/me', headers=headers)
         if response.status_code != 200:
             logger.error(
                 f"Can't get info from Users API, status code: {response.status_code}"
@@ -45,7 +45,7 @@ def fetch_user_data_as_moderator(
             f' of type: {requested_type.value}'
         )
         response = requests.get(
-            f'http://localhost:8080/users/{user_id}', headers=headers
+            f'http://{settings.USERS_API_HOST}:{settings.USERS_API_PORT}/users/{user_id}', headers=headers
         )
         if response.status_code != 200:
             logger.error(
