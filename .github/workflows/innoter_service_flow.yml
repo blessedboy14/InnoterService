@@ -1,5 +1,5 @@
 
-name: Python app workflow
+name: Innoter service workflow
 
 on:
   pull_request:
@@ -54,6 +54,6 @@ jobs:
       - name: Wait until mysql is up
         run: |
           sleep 10s
-      - name: Test with pytest and show coverage
+      - name: Test with pytest
         run: |
           docker exec innoter_service pytest
