@@ -36,6 +36,22 @@ services:
       - ACCESS_EXP=${ACCESS_EXP}
       - REFRESH_EXP=${REFRESH_EXP}
 
+  celery_beat:
+    container_name: celery_beat
+    build:
+      context: .
+    command: "celery -A InnoterService worker --beat --loglevel=debug"
+    depends_on:
+      - mysql_db
+    networks:
+      - usersmanagementservice_default
+    environment:
+      - RABBITMQ_HOST=rabbitmq_manage
+      - PASS=${PASS}
+      - NAME=${NAME}
+      - MYSQL_HOST=mysql_db
+      - MYSQL_DB_NAME=${MYSQL_DB_NAME}
+
 networks:
   usersmanagementservice_default:
     external: true

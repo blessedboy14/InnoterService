@@ -27,5 +27,6 @@ COPY tests/.test.env /code/tests
 ENV DJANGO_SETTINGS_MODULE=InnoterService.settings
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-CMD ["celery", "-A", "InnoterService", "worker", "--beat", "--loglevel=debug"]
+CMD ["sh", "start_app.sh"]
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+#CMD ["celery", "-A", "InnoterService", "worker", "--beat", "--loglevel=debug"]

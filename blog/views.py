@@ -43,9 +43,6 @@ class PageViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         page = self.get_object()
-        logger.info(
-            f'request to retrieve page object with query params: {request.query_params}'
-        )
         if not page.is_blocked:
             page_number = request.query_params.get('page', 1)
             limit = request.query_params.get('limit', 30)
@@ -66,7 +63,6 @@ class PageViewSet(viewsets.ModelViewSet):
 
     def retrieve_followers(self, request, *args, **kwargs):
         page = self.get_object()
-        logger.info(f'request to retrieve followers of page with pk={page.id}')
         followers = Followers.objects.filter(page_id=page.id)
         serializer = FollowerResponseSerializer(followers, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
