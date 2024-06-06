@@ -55,7 +55,7 @@ class PageViewSet(viewsets.ModelViewSet):
             serializer.posts = items
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
-            logger.error(f'request to retrieve blocked page with pk={page.id}')
+            logger.error(f'Request to retrieve blocked page with pk={page.id}')
             return Response(
                 data={'message': 'Oops, page is blocked!'},
                 status=status.HTTP_404_NOT_FOUND,
@@ -70,7 +70,6 @@ class PageViewSet(viewsets.ModelViewSet):
     @staticmethod
     def follow(request, *args, **kwargs):
         if not Followers.objects.filter(page=kwargs['pk']).exists():
-            logger.info(f'request to follow to page with pk={kwargs["pk"]}')
             user_id = request.user.user_id
             response_data = {}
             data = {'page': kwargs['pk']}
@@ -81,22 +80,17 @@ class PageViewSet(viewsets.ModelViewSet):
             follower.save()
             response_data.update({'message': 'successfully followed'})
             return Response(data=response_data, status=status.HTTP_200_OK)
-        logger.info(
-            f'request to follow to page that is already followed by user, page pk={kwargs["pk"]}'
-        )
         response_data = {'message': 'already followed'}
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     @staticmethod
     def unfollow(request, *args, **kwargs):
-        logger.info(f'request to unfollow from page with pk={kwargs["pk"]}')
         if Followers.objects.filter(page_id=kwargs['pk']).exists():
             Followers.objects.filter(page_id=kwargs['pk']).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
     def feed(request, *args, **kwargs):
-        logger.info(f'request to get feed for user id = {request.user.user_id}')
         followed = Followers.objects.filter(user_id=request.user.user_id).values_list(
             'page_id', flat=True
         )
@@ -107,7 +101,6 @@ class PageViewSet(viewsets.ModelViewSet):
     def block(self, request, *args, **kwargs):
         page = self.get_object()
         unblock_date = request.data.get('unblock_date', None)
-        logger.info(f'request to block page with pk={page.id}')
         if not page.is_blocked and unblock_date:
             page.is_blocked = True
             page.unblock_date = unblock_date

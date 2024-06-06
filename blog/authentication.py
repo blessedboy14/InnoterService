@@ -32,7 +32,7 @@ class CustomJWTAuthentication(authentication.BaseAuthentication):
 
     @staticmethod
     def _retrieve_raw_token(token: str) -> str:
-        return token[token.index(' ') + 1 :]
+        return token[token.index(' ') + 1:]
 
     @staticmethod
     def _decode_jwt(token: str) -> dict:
