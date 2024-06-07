@@ -43,7 +43,4 @@ class IsAdminOrGroupModerator(permissions.BasePermission):
                 == request.user.try_get_another_user_group_id(obj.user_id)
             )
             return bool_val
-        logger.error(
-            f'Api call failed, when checking permission for user id: {request.user.user_id}'
-        )
         return False

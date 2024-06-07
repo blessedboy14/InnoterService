@@ -1,9 +1,7 @@
-from django.core.paginator import Paginator
-from rest_framework import viewsets, permissions, status
-from rest_framework.response import Response
+from rest_framework import viewsets, permissions
 from InnoterService import settings
 from blog.authentication import CustomJWTAuthentication
-from blog.models import Post, Page, Tag, Followers, Likes
+from blog.models import Post, Page, Tag
 from blog.permissions import (
     IsAdminModerCreatorOrReadOnly,
     IsCreator,
@@ -13,11 +11,16 @@ from blog.serializers import (
     PostSerializer,
     PageSerializer,
     TagSerializer,
-    PageDetailSerializer,
-    PaginationParamsSerializer,
-    PaginationAndFiltersSerializer,
-    FollowerSerializer,
-    FollowerResponseSerializer,
+)
+from blog.service import (
+    page_detail,
+    get_followers,
+    follow_to_page,
+    unfollow,
+    list_feed,
+    block_page,
+    list_tags_with_filtering,
+    like_post,
 )
 
 logger = settings.logger
@@ -43,75 +46,28 @@ class PageViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         page = self.get_object()
-        if not page.is_blocked:
-            page_number = request.query_params.get('page', 1)
-            limit = request.query_params.get('limit', 30)
-            params_serializer = PaginationParamsSerializer(data=request.query_params)
-            params_serializer.is_valid(raise_exception=True)
-            posts = page.posts.all()
-            paginator = Paginator(posts, limit)
-            items = paginator.page(page_number).object_list
-            serializer = PageDetailSerializer(page)
-            serializer.posts = items
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        else:
-            logger.error(f'Request to retrieve blocked page with pk={page.id}')
-            return Response(
-                data={'message': 'Oops, page is blocked!'},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        return page_detail(page, request)
 
     def retrieve_followers(self, request, *args, **kwargs):
         page = self.get_object()
-        followers = Followers.objects.filter(page_id=page.id)
-        serializer = FollowerResponseSerializer(followers, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return get_followers(page)
 
     @staticmethod
     def follow(request, *args, **kwargs):
-        if not Followers.objects.filter(page=kwargs['pk']).exists():
-            user_id = request.user.user_id
-            response_data = {}
-            data = {'page': kwargs['pk']}
-            serializer = FollowerSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            follower = Followers(**serializer.validated_data)
-            follower.user_id = user_id
-            follower.save()
-            response_data.update({'message': 'successfully followed'})
-            return Response(data=response_data, status=status.HTTP_200_OK)
-        response_data = {'message': 'already followed'}
-        return Response(data=response_data, status=status.HTTP_200_OK)
+        return follow_to_page(request, kwargs['pk'])
 
     @staticmethod
     def unfollow(request, *args, **kwargs):
-        if Followers.objects.filter(page_id=kwargs['pk']).exists():
-            Followers.objects.filter(page_id=kwargs['pk']).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return unfollow(kwargs['pk'])
 
     @staticmethod
     def feed(request, *args, **kwargs):
-        followed = Followers.objects.filter(user_id=request.user.user_id).values_list(
-            'page_id', flat=True
-        )
-        posts = Post.objects.filter(page__id__in=followed).order_by('-created_at')
-        serializer = PostSerializer(posts, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return list_feed(request)
 
     def block(self, request, *args, **kwargs):
         page = self.get_object()
         unblock_date = request.data.get('unblock_date', None)
-        if not page.is_blocked and unblock_date:
-            page.is_blocked = True
-            page.unblock_date = unblock_date
-            page.save()
-        else:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={'message': 'incorrect unblock_date passed'},
-            )
-        serializer = PageDetailSerializer(page)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return block_page(page, unblock_date)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -124,13 +80,7 @@ class TagViewSet(viewsets.ModelViewSet):
         page = request.query_params.get('page', 1)
         limit = request.query_params.get('limit', 30)
         filter_by_name = request.query_params.get('filter_by_name', '')
-        params_serializer = PaginationAndFiltersSerializer(data=request.query_params)
-        params_serializer.is_valid(raise_exception=True)
-        query_set = Tag.objects.filter(name__icontains=filter_by_name)
-        paginator = Paginator(query_set, limit)
-        items = paginator.page(page).object_list
-        serializer = TagSerializer(items, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return list_tags_with_filtering(request, page, limit, filter_by_name)
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -149,13 +99,4 @@ class PostViewSet(viewsets.ModelViewSet):
     def like(self, request, *args, **kwargs):
         post = self.get_object()
         user_id = request.user.user_id
-        if not Likes.objects.filter(user_id=user_id).exists():
-            like = Likes(user_id=user_id, post=post)
-            like.save()
-            return Response(
-                status=status.HTTP_201_CREATED, data={'message': 'successfully liked'}
-            )
-        else:
-            like = Likes.objects.get(user_id=user_id, post=post)
-            like.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        return like_post(post, user_id)
