@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import logging
+import logging.config
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -87,16 +88,27 @@ WSGI_APPLICATION = 'InnoterService.wsgi.application'
 
 LOGGING = {
     'version': 1,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        }
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
         'celery': {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+
     },
 }
 
@@ -172,11 +184,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # logger config
+logging.config.dictConfig(LOGGING)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-
-logger.addHandler(handler)

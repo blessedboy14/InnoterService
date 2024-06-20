@@ -16,9 +16,6 @@ class UserRole(enum.Enum):
     MODERATOR = 'moderator'
 
 
-role_values = [a.value for a in UserRole]
-
-
 def fetch_user_data(token: str, requested_type: RequestedDataType) -> dict | None:
     headers = {'Authorization': f'Bearer {token}'}
     try:
