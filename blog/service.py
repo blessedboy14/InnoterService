@@ -44,7 +44,7 @@ def get_followers(page: Page) -> Response:
 
 def follow_to_page(request: Request, pk: str) -> Response:
     if not Followers.objects.filter(page=pk).exists():
-        user_id = request.user.user_id
+        user_id = request.custom_user.user_id
         response_data = {}
         data = {'page': pk}
         serializer = FollowerSerializer(data=data)
@@ -65,9 +65,9 @@ def unfollow(pk: str) -> Response:
 
 
 def list_feed(request: Request) -> Response:
-    followed = Followers.objects.filter(user_id=request.user.user_id).values_list(
-        'page_id', flat=True
-    )
+    followed = Followers.objects.filter(
+        user_id=request.custom_user.user_id
+    ).values_list('page_id', flat=True)
     posts = Post.objects.filter(page__id__in=followed).order_by('-created_at')
     serializer = PostSerializer(posts, many=True)
     return Response(data=serializer.data, status=status.HTTP_200_OK)

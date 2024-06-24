@@ -1,11 +1,11 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from InnoterService import settings
-from blog.authentication import CustomJWTAuthentication
 from blog.models import Post, Page, Tag
 from blog.permissions import (
     IsAdminModerCreatorOrReadOnly,
     IsCreator,
     IsAdminOrGroupModerator,
+    IsAuthenticated,
 )
 from blog.serializers import (
     PostSerializer,
@@ -30,12 +30,12 @@ class PageViewSet(viewsets.ModelViewSet):
     queryset = Page.objects.all().order_by('-created_at')
     serializer_class = PageSerializer
     permission_classes = [IsAdminModerCreatorOrReadOnly]
-    authentication_classes = [CustomJWTAuthentication]
+    # authentication_classes = [CustomJWTAuthentication]
     save_actions = ('create_page', 'retrieve', 'follow', 'unfollow')
 
     def get_permissions(self):
-        if self.action in self.save_actions:
-            self.permission_classes = [permissions.IsAuthenticated]
+        if self.action in self.save_actions or self.action == 'feed':
+            self.permission_classes = [IsAuthenticated]
         elif self.action == 'partial_update':
             self.permission_classes = [IsCreator]
         elif self.action == 'block':
@@ -73,8 +73,8 @@ class PageViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all().order_by('name')
     serializer_class = TagSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [CustomJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    # authentication_classes = [CustomJWTAuthentication]
 
     def list(self, request, *args, **kwargs):
         page = request.query_params.get('page', 1)
@@ -86,17 +86,17 @@ class TagViewSet(viewsets.ModelViewSet):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [CustomJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    # authentication_classes = [CustomJWTAuthentication]
 
     def get_permissions(self):
         if self.action == 'create_post' or self.action == 'like':
-            self.permission_classes = [permissions.IsAuthenticated]
+            self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [IsAdminModerCreatorOrReadOnly]
         return [permission() for permission in self.permission_classes]
 
     def like(self, request, *args, **kwargs):
         post = self.get_object()
-        user_id = request.user.user_id
+        user_id = request.custom_user.user_id
         return like_post(post, user_id)

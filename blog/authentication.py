@@ -24,7 +24,6 @@ class CustomJWTAuthentication(authentication.BaseAuthentication):
             )
             raise AuthenticationFailed(f'Authentication error: {e}')
         user_entity = TempUserEntity(payload['user_id'], token)
-        user_entity.authenticate()
         return user_entity, None
 
     @staticmethod

@@ -15,14 +15,14 @@ from blog.utils import TempUserEntity
 def test_is_creator_permission_true(get_admin_user_id):
     user_id = UUID(get_admin_user_id)
     page = MagicMock(user_id=user_id)
-    request = MagicMock(user=TempUserEntity(user_id=get_admin_user_id, token=''))
+    request = MagicMock(custom_user=TempUserEntity(user_id=get_admin_user_id, token=''))
     assert IsCreator().has_object_permission(request, MagicMock(), page)
 
 
 def test_is_creator_false(get_admin_user_id):
     user_id = uuid.uuid4()
     page = MagicMock(user_id=user_id)
-    request = MagicMock(user=TempUserEntity(user_id=get_admin_user_id, token=''))
+    request = MagicMock(custom_user=TempUserEntity(user_id=get_admin_user_id, token=''))
     assert not IsCreator().has_object_permission(request, MagicMock(), page)
 
 
@@ -33,7 +33,9 @@ def test_is_admin_or_group_moderator_as_admin(get_admin_user_id, monkeypatch):
     monkeypatch.setattr('blog.utils.fetch_user_data', mock_fetch_user_data)
 
     request = MagicMock(
-        user=TempUserEntity(user_id=get_admin_user_id, token='', role=UserRole.ADMIN)
+        custom_user=TempUserEntity(
+            user_id=get_admin_user_id, token='', role=UserRole.ADMIN
+        )
     )
     assert IsAdminOrGroupModerator().has_object_permission(
         request, MagicMock(), MagicMock()
@@ -52,7 +54,7 @@ def test_is_admin_or_group_moderator_as_group_moderator(get_admin_user_id, monke
     monkeypatch.setattr('blog.utils.fetch_user_data', mock_fetch_user_data)
 
     request = MagicMock(
-        user=TempUserEntity(
+        custom_user=TempUserEntity(
             user_id=get_admin_user_id,
             token='',
             role=UserRole.ADMIN,
@@ -70,7 +72,7 @@ def test_is_admin_or_group_moderator_as_user(monkeypatch):
 
     monkeypatch.setattr('blog.utils.fetch_user_data', mock_fetch_user_data)
 
-    request = MagicMock(user=TempUserEntity(user_id=str(uuid.uuid4()), token=''))
+    request = MagicMock(custom_user=TempUserEntity(user_id=str(uuid.uuid4()), token=''))
     assert not IsAdminOrGroupModerator().has_object_permission(
         request, MagicMock(), MagicMock()
     )
@@ -79,7 +81,7 @@ def test_is_admin_or_group_moderator_as_user(monkeypatch):
 def test_is_admin_moder_creator_as_creator(get_admin_user_id):
     user_id = UUID(get_admin_user_id)
     page = MagicMock(user_id=user_id)
-    request = MagicMock(user=TempUserEntity(user_id=get_admin_user_id, token=''))
+    request = MagicMock(custom_user=TempUserEntity(user_id=get_admin_user_id, token=''))
     assert IsAdminModerCreatorOrReadOnly().has_object_permission(
         request, MagicMock(), page
     )
@@ -92,7 +94,9 @@ def test_is_admin_moder_creator_as_admin(get_admin_user_id, monkeypatch):
     monkeypatch.setattr('blog.utils.fetch_user_data', mock_fetch_user_data)
 
     request = MagicMock(
-        user=TempUserEntity(user_id=get_admin_user_id, token='', role=UserRole.ADMIN)
+        custom_user=TempUserEntity(
+            user_id=get_admin_user_id, token='', role=UserRole.ADMIN
+        )
     )
     assert IsAdminModerCreatorOrReadOnly().has_object_permission(
         request, MagicMock(), MagicMock()
@@ -111,7 +115,7 @@ def test_is_admin_moder_creator_as_moderator(get_admin_user_id, monkeypatch):
     monkeypatch.setattr('blog.utils.fetch_user_data', mock_fetch_user_data)
 
     request = MagicMock(
-        user=TempUserEntity(
+        custom_user=TempUserEntity(
             user_id=get_admin_user_id,
             token='',
             role=UserRole.ADMIN,
@@ -130,7 +134,7 @@ def test_is_admin_moder_creator_as_anonym(get_admin_user_id, monkeypatch):
     monkeypatch.setattr('blog.utils.fetch_user_data', mock_fetch_user_data)
     user_id = uuid.uuid4()
     page = MagicMock(user_id=user_id)
-    request = MagicMock(user=TempUserEntity(user_id=get_admin_user_id, token=''))
+    request = MagicMock(custom_user=TempUserEntity(user_id=get_admin_user_id, token=''))
     assert not IsAdminModerCreatorOrReadOnly().has_object_permission(
         request, MagicMock(), page
     )

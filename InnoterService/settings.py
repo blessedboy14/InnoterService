@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'blog.middleware.JWTAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -89,9 +90,7 @@ WSGI_APPLICATION = 'InnoterService.wsgi.application'
 LOGGING = {
     'version': 1,
     'formatters': {
-        'verbose': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        }
+        'verbose': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'}
     },
     'handlers': {
         'console': {
@@ -100,15 +99,11 @@ LOGGING = {
         },
     },
     'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO'
-        },
+        '': {'handlers': ['console'], 'level': 'INFO'},
         'celery': {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
-
     },
 }
 
