@@ -30,7 +30,6 @@ class PageViewSet(viewsets.ModelViewSet):
     queryset = Page.objects.all().order_by('-created_at')
     serializer_class = PageSerializer
     permission_classes = [IsAdminModerCreatorOrReadOnly]
-    # authentication_classes = [CustomJWTAuthentication]
     save_actions = ('create_page', 'retrieve', 'follow', 'unfollow')
 
     def get_permissions(self):
@@ -74,7 +73,6 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all().order_by('name')
     serializer_class = TagSerializer
     permission_classes = [IsAuthenticated]
-    # authentication_classes = [CustomJWTAuthentication]
 
     def list(self, request, *args, **kwargs):
         page = request.query_params.get('page', 1)
@@ -87,7 +85,6 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
-    # authentication_classes = [CustomJWTAuthentication]
 
     def get_permissions(self):
         if self.action == 'create_post' or self.action == 'like':

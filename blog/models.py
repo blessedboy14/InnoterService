@@ -64,9 +64,3 @@ class Post(models.Model):
 class Likes(models.Model):
     user_id = models.UUIDField()
     post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE)
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)

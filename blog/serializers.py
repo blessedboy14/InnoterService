@@ -4,7 +4,6 @@ from blog.models import Post, Tag, Page, Followers, Likes
 
 
 class PostSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Post
         fields = '__all__'
@@ -17,8 +16,17 @@ class FeedPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'created_at', 'updated_at', 'content', 'page_title', 'reply_to', 'page', 'likes',
-                  'has_liked']
+        fields = [
+            'id',
+            'created_at',
+            'updated_at',
+            'content',
+            'page_title',
+            'reply_to',
+            'page',
+            'likes',
+            'has_liked',
+        ]
 
     def get_has_liked(self, obj):
         user = self.context['request'].custom_user

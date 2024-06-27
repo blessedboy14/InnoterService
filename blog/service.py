@@ -10,9 +10,9 @@ from blog.serializers import (
     PageDetailSerializer,
     FollowerResponseSerializer,
     FollowerSerializer,
-    PostSerializer,
     PaginationAndFiltersSerializer,
-    TagSerializer, FeedPostSerializer,
+    TagSerializer,
+    FeedPostSerializer,
 )
 
 
@@ -105,11 +105,16 @@ def like_post(post: Post, user_id: str) -> Response:
         like = Likes(user_id=user_id, post=post)
         like.save()
         return Response(
-            status=status.HTTP_201_CREATED, data={'message': 'successfully liked',
-                                                  'likes': Likes.objects.filter(post=post).count()}
+            status=status.HTTP_201_CREATED,
+            data={
+                'message': 'successfully liked',
+                'likes': Likes.objects.filter(post=post).count(),
+            },
         )
     else:
         like = Likes.objects.get(user_id=user_id, post=post)
         like.delete()
-        return Response(status=status.HTTP_200_OK,
-                        data={'likes': Likes.objects.filter(post=post).count()})
+        return Response(
+            status=status.HTTP_200_OK,
+            data={'likes': Likes.objects.filter(post=post).count()},
+        )
