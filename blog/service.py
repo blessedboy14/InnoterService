@@ -12,7 +12,7 @@ from blog.serializers import (
     FollowerSerializer,
     PostSerializer,
     PaginationAndFiltersSerializer,
-    TagSerializer,
+    TagSerializer, FeedPostSerializer,
 )
 
 
@@ -69,7 +69,8 @@ def list_feed(request: Request) -> Response:
         user_id=request.custom_user.user_id
     ).values_list('page_id', flat=True)
     posts = Post.objects.filter(page__id__in=followed).order_by('-created_at')
-    serializer = PostSerializer(posts, many=True)
+    context = {'request': request}
+    serializer = FeedPostSerializer(posts, many=True, context=context)
     return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -104,9 +105,11 @@ def like_post(post: Post, user_id: str) -> Response:
         like = Likes(user_id=user_id, post=post)
         like.save()
         return Response(
-            status=status.HTTP_201_CREATED, data={'message': 'successfully liked'}
+            status=status.HTTP_201_CREATED, data={'message': 'successfully liked',
+                                                  'likes': Likes.objects.filter(post=post).count()}
         )
     else:
         like = Likes.objects.get(user_id=user_id, post=post)
         like.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_200_OK,
+                        data={'likes': Likes.objects.filter(post=post).count()})

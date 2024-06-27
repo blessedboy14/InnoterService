@@ -73,4 +73,4 @@ def test_like_then_unlike_post(api_client, mock_authentication, create_fake_post
     response = api_client.post(f'/post/{post_id}/like')
     assert response.status_code == status.HTTP_201_CREATED
     response = api_client.post(f'/post/{post_id}/like')
-    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert response.status_code == status.HTTP_200_OK

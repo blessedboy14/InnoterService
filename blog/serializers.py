@@ -1,12 +1,28 @@
 from rest_framework import serializers
 
-from blog.models import Post, Tag, Page, Followers
+from blog.models import Post, Tag, Page, Followers, Likes
 
 
 class PostSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Post
         fields = '__all__'
+
+
+class FeedPostSerializer(serializers.ModelSerializer):
+    page_title = serializers.CharField(source='page.name')
+    likes = serializers.IntegerField(source='likes.count')
+    has_liked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = ['id', 'created_at', 'updated_at', 'content', 'page_title', 'reply_to', 'page', 'likes',
+                  'has_liked']
+
+    def get_has_liked(self, obj):
+        user = self.context['request'].custom_user
+        return Likes.objects.filter(user_id=user.user_id).exists()
 
 
 class TagSerializer(serializers.ModelSerializer):
