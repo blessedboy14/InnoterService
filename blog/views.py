@@ -21,6 +21,7 @@ from blog.service import (
     block_page,
     list_tags_with_filtering,
     like_post,
+    list_users_pages,
 )
 
 logger = settings.logger
@@ -57,16 +58,21 @@ class PageViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def unfollow(request, *args, **kwargs):
-        return unfollow(kwargs['pk'])
+        return unfollow(kwargs['pk'], request)
 
     @staticmethod
     def feed(request, *args, **kwargs):
         return list_feed(request)
 
+    @staticmethod
+    def get_users_pages(request, *args, **kwargs):
+        user_id = kwargs['pk']
+        return list_users_pages(user_id)
+
     def block(self, request, *args, **kwargs):
         page = self.get_object()
         unblock_date = request.data.get('unblock_date', None)
-        return block_page(page, unblock_date)
+        return block_page(page, unblock_date, request)
 
 
 class TagViewSet(viewsets.ModelViewSet):

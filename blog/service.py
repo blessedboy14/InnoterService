@@ -13,6 +13,7 @@ from blog.serializers import (
     PaginationAndFiltersSerializer,
     TagSerializer,
     FeedPostSerializer,
+    PageNamesSerializer,
 )
 
 
@@ -25,9 +26,11 @@ def page_detail(page: Page, request: Request) -> Response:
         posts = page.posts.all()
         paginator = Paginator(posts, limit)
         items = paginator.page(page_number).object_list
-        serializer = PageDetailSerializer(page)
+        context = {'request': request}
+        serializer = PageDetailSerializer(page, context=context)
         serializer.posts = items
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        output = {**serializer.data, 'total_pages': paginator.num_pages}
+        return Response(data=output, status=status.HTTP_200_OK)
     else:
         logger.error(f'Request to retrieve blocked page with pk={page.id}')
         return Response(
@@ -43,7 +46,9 @@ def get_followers(page: Page) -> Response:
 
 
 def follow_to_page(request: Request, pk: str) -> Response:
-    if not Followers.objects.filter(page=pk).exists():
+    if not Followers.objects.filter(
+        page=pk, user_id=request.custom_user.user_id
+    ).exists():
         user_id = request.custom_user.user_id
         response_data = {}
         data = {'page': pk}
@@ -58,10 +63,20 @@ def follow_to_page(request: Request, pk: str) -> Response:
     return Response(data=response_data, status=status.HTTP_200_OK)
 
 
-def unfollow(pk: str) -> Response:
-    if Followers.objects.filter(page_id=pk).exists():
-        Followers.objects.filter(page_id=pk).delete()
+def unfollow(pk: str, request: Request) -> Response:
+    if Followers.objects.filter(
+        page_id=pk, user_id=request.custom_user.user_id
+    ).exists():
+        Followers.objects.filter(
+            page_id=pk, user_id=request.custom_user.user_id
+        ).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def list_users_pages(user_id: str) -> Response:
+    pages = Page.objects.filter(user_id=user_id)
+    serializer = PageNamesSerializer(pages, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 def list_feed(request: Request) -> Response:
@@ -74,7 +89,7 @@ def list_feed(request: Request) -> Response:
     return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-def block_page(page: Page, unblock_date: str) -> Response:
+def block_page(page: Page, unblock_date: str, request: Request) -> Response:
     if not page.is_blocked and unblock_date:
         page.is_blocked = True
         page.unblock_date = unblock_date
@@ -84,7 +99,8 @@ def block_page(page: Page, unblock_date: str) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
             data={'message': 'incorrect unblock_date passed'},
         )
-    serializer = PageDetailSerializer(page)
+
+    serializer = PageDetailSerializer(page, context={'request': request})
     return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -97,11 +113,12 @@ def list_tags_with_filtering(
     paginator = Paginator(query_set, limit)
     items = paginator.page(page).object_list
     serializer = TagSerializer(items, many=True)
-    return Response(data=serializer.data, status=status.HTTP_200_OK)
+    output = {'tags': serializer.data, 'total_tags': paginator.num_pages}
+    return Response(data=output, status=status.HTTP_200_OK)
 
 
 def like_post(post: Post, user_id: str) -> Response:
-    if not Likes.objects.filter(user_id=user_id).exists():
+    if not Likes.objects.filter(user_id=user_id, post=post).exists():
         like = Likes(user_id=user_id, post=post)
         like.save()
         return Response(

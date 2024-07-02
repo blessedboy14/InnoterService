@@ -43,7 +43,7 @@ class Page(models.Model):
 
 
 class Followers(models.Model):
-    page = models.ForeignKey(Page, on_delete=models.CASCADE)
+    page = models.ForeignKey(Page, related_name='followers', on_delete=models.CASCADE)
     user_id = models.UUIDField()
 
 

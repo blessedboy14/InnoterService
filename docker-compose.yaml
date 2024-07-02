@@ -51,6 +51,7 @@ services:
       - NAME=${NAME}
       - MYSQL_HOST=mysql_db
       - MYSQL_DB_NAME=${MYSQL_DB_NAME}
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
 
 networks:
   usersmanagementservice_default:

@@ -13,6 +13,11 @@ urlpatterns = [
     path('tags', views.TagViewSet.as_view({'get': 'list'}), name='list_tags'),
     path('page', views.PageViewSet.as_view({'post': 'create'}), name='create_page'),
     path(
+        '<slug:pk>/pages',
+        views.PageViewSet.as_view({'get': 'get_users_pages'}),
+        name='list_pages',
+    ),
+    path(
         'page/<slug:pk>/block',
         views.PageViewSet.as_view({'patch': 'block'}),
         name='block_page',
