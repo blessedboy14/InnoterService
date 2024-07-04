@@ -29,7 +29,7 @@ class Page(models.Model):
     name = models.CharField(max_length=120, unique=True)
     description = models.TextField()
     user_id = models.UUIDField()
-    image_url = models.URLField()
+    image_url = models.CharField(max_length=350, default="https://placehold.co/220x120")
     tags = models.ManyToManyField(Tag)
     is_blocked = models.BooleanField(default=False)
     unblock_date = models.DateField(blank=True, null=True)

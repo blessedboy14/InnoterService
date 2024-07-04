@@ -41,7 +41,15 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TagIdSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ['id']
+
+
 class PageSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Page
         fields = '__all__'

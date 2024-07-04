@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 from InnoterService import settings
 from blog.models import Post, Page, Tag
 from blog.permissions import (
@@ -10,7 +12,7 @@ from blog.permissions import (
 from blog.serializers import (
     PostSerializer,
     PageSerializer,
-    TagSerializer,
+    TagSerializer, PageDetailSerializer,
 )
 from blog.service import (
     page_detail,
@@ -21,7 +23,7 @@ from blog.service import (
     block_page,
     list_tags_with_filtering,
     like_post,
-    list_users_pages,
+    list_users_pages, create_page_with_image, update_page_data,
 )
 
 logger = settings.logger
@@ -32,9 +34,10 @@ class PageViewSet(viewsets.ModelViewSet):
     serializer_class = PageSerializer
     permission_classes = [IsAdminModerCreatorOrReadOnly]
     save_actions = ('create_page', 'retrieve', 'follow', 'unfollow')
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_permissions(self):
-        if self.action in self.save_actions or self.action == 'feed':
+        if self.action in self.save_actions or self.action == 'feed' or self.action == 'perform_create':
             self.permission_classes = [IsAuthenticated]
         elif self.action == 'partial_update':
             self.permission_classes = [IsCreator]
@@ -43,6 +46,17 @@ class PageViewSet(viewsets.ModelViewSet):
         else:
             self.permission_classes = [IsAdminModerCreatorOrReadOnly]
         return [permission() for permission in self.permission_classes]
+
+    def perform_create(self, serializer):
+        image = self.request.FILES.get('image')
+        return create_page_with_image(self.request, serializer, image)
+
+    def partial_update(self, request, *args, **kwargs):
+        image = self.request.FILES.get('image')
+        if image:
+            return update_page_data(request, image, super().partial_update)
+        else:
+            return super().partial_update(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         page = self.get_object()

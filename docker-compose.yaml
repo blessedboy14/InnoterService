@@ -35,6 +35,7 @@ services:
       - ALGORITHM=${HS256}
       - ACCESS_EXP=${ACCESS_EXP}
       - REFRESH_EXP=${REFRESH_EXP}
+      - LOCALSTACK_HOST=localstack
 
   celery_beat:
     container_name: celery_beat

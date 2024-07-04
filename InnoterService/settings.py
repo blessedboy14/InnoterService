@@ -32,6 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY') if os.getenv('SECRET_KEY') else '<INSECURE_
 
 USERS_API_HOST = os.getenv('USERS_API_HOST', 'localhost')
 USERS_API_PORT = os.getenv('USERS_API_PORT', 8080)
+LOCALSTACK_HOST = os.getenv('LOCALSTACK_HOST', 'localhost')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
