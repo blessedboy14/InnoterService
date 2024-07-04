@@ -12,7 +12,7 @@ from blog.permissions import (
 from blog.serializers import (
     PostSerializer,
     PageSerializer,
-    TagSerializer, PageDetailSerializer,
+    TagSerializer,
 )
 from blog.service import (
     page_detail,
@@ -23,7 +23,9 @@ from blog.service import (
     block_page,
     list_tags_with_filtering,
     like_post,
-    list_users_pages, create_page_with_image, update_page_data,
+    list_users_pages,
+    create_page_with_image,
+    update_page_data,
 )
 
 logger = settings.logger
@@ -37,7 +39,11 @@ class PageViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_permissions(self):
-        if self.action in self.save_actions or self.action == 'feed' or self.action == 'perform_create':
+        if (
+            self.action in self.save_actions
+            or self.action == 'feed'
+            or self.action == 'perform_create'
+        ):
             self.permission_classes = [IsAuthenticated]
         elif self.action == 'partial_update':
             self.permission_classes = [IsCreator]

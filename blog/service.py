@@ -17,7 +17,8 @@ from blog.serializers import (
     PaginationAndFiltersSerializer,
     TagSerializer,
     FeedPostSerializer,
-    PageNamesSerializer, PageSerializer,
+    PageNamesSerializer,
+    PageSerializer,
 )
 
 
@@ -49,13 +50,17 @@ def get_followers(page: Page) -> Response:
     return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-def update_page_data(request: Request, image: InMemoryUploadedFile, parent_partial_update) -> Response:
+def update_page_data(
+    request: Request, image: InMemoryUploadedFile, parent_partial_update
+) -> Response:
     result, filename = _upload_image_to_s3(image, request.custom_user.user_id)
     if result:
         request.data['image_url'] = filename
         return parent_partial_update(request)
     else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data="Can't save image to s3")
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST, data="Can't save image to s3"
+        )
 
 
 def _upload_image_to_s3(image: InMemoryUploadedFile, user_id: str) -> tuple[bool, str]:
@@ -73,15 +78,21 @@ def _upload_image_to_s3(image: InMemoryUploadedFile, user_id: str) -> tuple[bool
         return False, ''
 
 
-def create_page_with_image(request: Request, serializer: PageSerializer, image: InMemoryUploadedFile) -> Response:
+def create_page_with_image(
+    request: Request, serializer: PageSerializer, image: InMemoryUploadedFile
+) -> Response:
     if image:
         result, filename = _upload_image_to_s3(image, request.custom_user.user_id)
         if result:
             serializer.save(user_id=request.custom_user.user_id, image_url=filename)
         else:
-            serializer.save(user_id=request.custom_user.user_id, image_url='https://example.com')
+            serializer.save(
+                user_id=request.custom_user.user_id, image_url='https://example.com'
+            )
     else:
-        serializer.save(user_id=request.custom_user.user_id, image_url='https://example.com')
+        serializer.save(
+            user_id=request.custom_user.user_id, image_url='https://example.com'
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -123,7 +134,9 @@ def list_feed(request: Request) -> Response:
     followed = Followers.objects.filter(
         user_id=request.custom_user.user_id
     ).values_list('page_id', flat=True)
-    posts = Post.objects.filter(page__id__in=followed, page__is_blocked=False).order_by('-created_at')
+    posts = Post.objects.filter(page__id__in=followed, page__is_blocked=False).order_by(
+        '-created_at'
+    )
     context = {'request': request}
     serializer = FeedPostSerializer(posts, many=True, context=context)
     return Response(data=serializer.data, status=status.HTTP_200_OK)

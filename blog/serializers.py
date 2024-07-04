@@ -42,14 +42,12 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class TagIdSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Tag
         fields = ['id']
 
 
 class PageSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Page
         fields = '__all__'
