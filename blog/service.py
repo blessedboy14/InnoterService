@@ -39,7 +39,7 @@ def page_detail(page: Page, request: Request) -> Response:
     else:
         logger.error(f'Request to retrieve blocked page with pk={page.id}')
         return Response(
-            data={'message': 'Oops, page is blocked!'},
+            data='Oops, page is blocked!',
             status=status.HTTP_404_NOT_FOUND,
         )
 

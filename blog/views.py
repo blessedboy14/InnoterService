@@ -49,6 +49,8 @@ class PageViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsCreator]
         elif self.action == 'block':
             self.permission_classes = [IsAdminOrGroupModerator]
+        elif self.action == 'get_users_pages':
+            self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [IsAdminModerCreatorOrReadOnly]
         return [permission() for permission in self.permission_classes]

@@ -20,8 +20,6 @@ class IsAuthenticated(permissions.BasePermission):
 
 class IsAdminModerCreatorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
         if request.custom_user.get_role() or request.custom_user.user_id:
             if not hasattr(obj, 'user_id'):
                 obj = Page.objects.get(pk=obj.page_id)
@@ -38,6 +36,11 @@ class IsAdminModerCreatorOrReadOnly(permissions.BasePermission):
         logger.error(
             f'Api call failed, when checking permission for user id: {request.custom_user.user_id}'
         )
+        return False
+
+    def has_permission(self, request, view):
+        if hasattr(request, 'custom_user'):
+            return True
         return False
 
 
