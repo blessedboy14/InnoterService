@@ -26,6 +26,8 @@ spec:
             - secretRef:
                 name: innoter-app-secret
 
+          imagePullPolicy: Never
+
 ---
 
 apiVersion: v1
