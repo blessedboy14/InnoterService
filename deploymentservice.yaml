@@ -25,6 +25,7 @@ spec:
           envFrom:
             - secretRef:
                 name: innoter-app-secret
+
           imagePullPolicy: Never
 
 ---
