@@ -141,9 +141,10 @@ DATABASES = {
         'PASSWORD': os.getenv('PASS'),
         'HOST': os.getenv('MYSQL_HOST'),
         'PORT': '3306',
-        'TEST': {
-            'USER': 'root',
-        },
+        # 'TEST': {
+        #     'USER': 'root',
+        #     'PASSWORD': os.getenv('PASS'),
+        # },
     },
 }
 

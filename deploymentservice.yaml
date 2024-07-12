@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  labels:
+    app: innoter_service
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: innoter_service
+
+  template:
+    metadata:
+      labels:
+        app: innoter_service
+
+    spec:
+      containers:
+        - name: innoter-service
+          image: innoterservice-innoter_service:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: innoter-app-secret
+          imagePullPolicy: Never
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service
+
+spec:
+  selector:
+    app: innoter_service
+
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
