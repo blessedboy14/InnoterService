@@ -75,4 +75,4 @@ spec:
               name: envs
         ports:
         - containerPort: 8000
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
