@@ -3,10 +3,10 @@ version: '3.8'
 services:
   mysql_db:
     image: mysql:latest
-    restart: always
+    networks:
+      - usersmanagementservice_default
     environment:
       - MYSQL_DATABASE=${MYSQL_DB_NAME}
-      - MYSQL_USER=${NAME}
       - MYSQL_PASSWORD=${PASS}
       - MYSQL_ROOT_PASSWORD=${PASS}
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
@@ -14,3 +14,46 @@ services:
       - '3306:3306'
     volumes:
       - /mysql_volume:/var/lib/mysql
+
+  innoter_service:
+    build: .
+    container_name: "innoter_service"
+    depends_on:
+      - mysql_db
+    networks:
+      - usersmanagementservice_default
+    ports:
+      - "8000:8000"
+    environment:
+      - PASS=${PASS}
+      - NAME=${NAME}
+      - BUCKET_NAME=${BUCKET_NAME}
+      - MYSQL_HOST=mysql_db
+      - MYSQL_DB_NAME=${MYSQL_DB_NAME}
+      - RABBITMQ_HOST=rabbitmq_manage
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${HS256}
+      - ACCESS_EXP=${ACCESS_EXP}
+      - REFRESH_EXP=${REFRESH_EXP}
+      - LOCALSTACK_HOST=localstack
+
+  celery_beat:
+    container_name: celery_beat
+    build:
+      context: .
+    command: "celery -A InnoterService worker --beat --loglevel=debug"
+    depends_on:
+      - mysql_db
+    networks:
+      - usersmanagementservice_default
+    environment:
+      - RABBITMQ_HOST=rabbitmq_manage
+      - PASS=${PASS}
+      - NAME=${NAME}
+      - MYSQL_HOST=mysql_db
+      - MYSQL_DB_NAME=${MYSQL_DB_NAME}
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+
+networks:
+  usersmanagementservice_default:
+    external: true
